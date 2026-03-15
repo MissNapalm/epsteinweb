@@ -1,17 +1,16 @@
 const width = window.innerWidth;
 const height = window.innerHeight;
 
-// Color scheme by node type
 const colorMap = {
     center: "#000000",
     convicted: "#991b1b",
     suspicious: "#c2410c",
-    unclear: "#4b5563"
+    unclear: "#4b5563",
+    likely: "#ff6600"
 };
 
-// Extended color palette for categories
 const categoryColors = {
-    "all": "#333",
+    "all": "#aaa",
     "politicians": "#1d4ed8",
     "billionaires": "#7c3aed",
     "royals": "#b45309",
@@ -20,27 +19,28 @@ const categoryColors = {
     "finance": "#16a34a",
     "convicted": "#991b1b",
     "intelligence": "#6d28d9",
-    "predators": "#dc2626"
+    "predators": "#dc2626",
+    "most suspicious": "#ff0000",
+    "likely involved": "#ff6600"
 };
 
-// Category assignments
 const categoryMap = {
-    epstein: ["all", "predators"],
-    maxwell_g: ["all", "convicted", "predators"],
-    brunel: ["all", "convicted", "predators"],
+    epstein: ["all", "predators", "most suspicious"],
+    maxwell_g: ["all", "convicted", "predators", "most suspicious"],
+    brunel: ["all", "convicted", "predators", "most suspicious"],
     nader: ["all", "convicted", "politicians", "intelligence", "predators"],
-    trump: ["all", "politicians"],
-    clinton: ["all", "politicians"],
-    andrew: ["all", "royals", "predators"],
+    trump: ["all", "politicians", "most suspicious"],
+    clinton: ["all", "politicians", "most suspicious"],
+    andrew: ["all", "royals", "predators", "most suspicious"],
     musk: ["all", "billionaires"],
     gates: ["all", "billionaires"],
-    wexner: ["all", "billionaires", "intelligence"],
-    staley: ["all", "finance"],
+    wexner: ["all", "billionaires", "intelligence", "most suspicious"],
+    staley: ["all", "finance", "most suspicious"],
     dubin: ["all", "finance", "billionaires"],
     mitchell: ["all", "politicians"],
     sultan_brunei: ["all", "royals", "billionaires"],
-    dershowitz: ["all", "academics", "intelligence"],
-    black: ["all", "finance", "billionaires"],
+    dershowitz: ["all", "academics", "intelligence", "most suspicious"],
+    black: ["all", "finance", "billionaires", "most suspicious"],
     joi_ito: ["all", "academics"],
     summers: ["all", "academics", "politicians"],
     hoffman: ["all", "billionaires"],
@@ -51,13 +51,13 @@ const categoryMap = {
     mort_z: ["all", "billionaires"],
     pritzker: ["all", "billionaires"],
     burkle: ["all", "billionaires", "politicians"],
-    lutnick: ["all", "finance", "politicians"],
+    lutnick: ["all", "finance", "politicians", "most suspicious"],
     branson: ["all", "billionaires"],
     tisch: ["all", "billionaires", "entertainment"],
     wasserman: ["all", "entertainment"],
-    barak: ["all", "politicians", "intelligence", "predators"],
+    barak: ["all", "politicians", "intelligence", "predators", "most suspicious"],
     thiel: ["all", "billionaires", "intelligence"],
-    mandelson: ["all", "politicians", "intelligence"],
+    mandelson: ["all", "politicians", "intelligence", "most suspicious"],
     barrack: ["all", "politicians", "intelligence"],
     casablancas: ["all", "entertainment", "predators"],
     woody: ["all", "entertainment", "predators"],
@@ -77,32 +77,95 @@ const categoryMap = {
     brin: ["all", "billionaires"],
     bannon: ["all", "politicians", "intelligence"],
     zuckerberg: ["all", "billionaires"],
-    mette_marit: ["all", "royals"]
+    mette_marit: ["all", "royals"],
+    robert_maxwell: ["all", "intelligence", "most suspicious"],
+    acosta: ["all", "politicians", "intelligence", "most suspicious"],
+    ben_menashe: ["all", "intelligence"],
+    barr_w: ["all", "politicians", "intelligence", "most suspicious"],
+    barr_d: ["all", "intelligence"],
+    hoffenberg: ["all", "finance", "intelligence"],
+    khashoggi: ["all", "intelligence", "finance"],
+    dougan: ["all", "intelligence"],
+    // LIKELY INVOLVED — NOT in "all"
+    putin: ["likely involved", "intelligence"],
+    king_charles: ["likely involved", "royals"],
+    mbs: ["likely involved", "intelligence"],
+    kissinger: ["likely involved", "politicians", "intelligence"],
+    brennan: ["likely involved", "intelligence"],
+    murdoch: ["likely involved", "billionaires"],
+    petraeus: ["likely involved", "intelligence"],
+    comey: ["likely involved", "intelligence"],
+    starr: ["likely involved"],
+    boies: ["likely involved"],
+    ellison: ["likely involved", "billionaires"]
 };
 
-// Light mode colors
-const bgColor = "#f5f5f5";
-const linkColor = "#ccc";
-const labelColor = "#333";
+// ─── THEME ───
+let currentTheme = localStorage.getItem("epstein-theme") || "dark";
 
-let activeCategory = "all";
-
-// Apply light background
-document.body.style.background = bgColor;
-
-// Update tooltip styles for light mode
-const tooltipEl = document.getElementById("tooltip");
-if (tooltipEl) {
-    tooltipEl.style.background = "rgba(255, 255, 255, 0.95)";
-    tooltipEl.style.border = "1px solid #ddd";
-    tooltipEl.style.color = "#333";
+function applyTheme() {
+    if (currentTheme === "light") {
+        document.body.classList.add("light-mode");
+    } else {
+        document.body.classList.remove("light-mode");
+    }
+    const isDark = currentTheme === "dark";
+    if (typeof link !== "undefined") {
+        link.attr("stroke", isDark ? "#333" : "#ccc");
+        node.selectAll("circle").attr("stroke", isDark ? "#1a1a2e" : "#fff");
+        node.selectAll("text")
+            .attr("fill", isDark ? "#ccc" : "#333")
+            .attr("stroke", isDark ? "#0a0a0f" : "#f5f5f5");
+    }
+    const btn = document.getElementById("themeToggle");
+    if (btn) {
+        btn.textContent = isDark ? "☀️" : "🌙";
+        btn.title = isDark ? "Switch to light mode" : "Switch to dark mode";
+    }
+    localStorage.setItem("epstein-theme", currentTheme);
 }
 
-// ─── NODE COLOR BY CATEGORY ───
+function toggleTheme() {
+    currentTheme = currentTheme === "dark" ? "light" : "dark";
+    applyTheme();
+}
+
+function createThemeToggle() {
+    const btn = document.createElement("button");
+    btn.id = "themeToggle";
+    btn.style.cssText = `position:fixed;top:14px;right:20px;z-index:10000;width:40px;height:40px;border-radius:50%;border:1px solid #444;background:rgba(30,30,40,0.8);color:#fff;font-size:18px;cursor:pointer;display:flex;align-items:center;justify-content:center;backdrop-filter:blur(10px);box-shadow:0 2px 8px rgba(0,0,0,0.3);`;
+    btn.addEventListener("click", toggleTheme);
+    document.body.appendChild(btn);
+}
+
+// ─── FILTER STATE ───
+let activeCategories = new Set(["all"]);
+
+function getVisibleNodes() {
+    const visible = new Set();
+    const likelyActive = activeCategories.has("likely involved");
+    graphData.nodes.forEach(n => {
+        const cats = categoryMap[n.id] || ["all"];
+        const isLikely = cats.includes("likely involved");
+        // If this is a "likely involved" node, ONLY show it when that filter is on
+        if (isLikely && !likelyActive) return;
+        for (const ac of activeCategories) {
+            if (cats.includes(ac)) {
+                visible.add(n.id);
+                break;
+            }
+        }
+    });
+    visible.add("epstein");
+    return visible;
+}
+
 function getNodeColor(d) {
     if (d.type === "center") return "#000000";
     if (d.type === "convicted") return "#991b1b";
+    if (d.type === "likely") return "#ff6600";
     const cats = categoryMap[d.id] || [];
+    if (cats.includes("likely involved")) return "#ff6600";
     if (cats.includes("politicians")) return categoryColors.politicians;
     if (cats.includes("royals")) return categoryColors.royals;
     if (cats.includes("billionaires")) return categoryColors.billionaires;
@@ -113,243 +176,111 @@ function getNodeColor(d) {
     return colorMap[d.type] || "#4b5563";
 }
 
-// ─── HELPER: get visible nodes for current filter ───
-function getVisibleNodes(category) {
-    const visible = new Set();
-    graphData.nodes.forEach(n => {
-        const cats = categoryMap[n.id] || ["all"];
-        if (category === "all" || cats.includes(category)) {
-            visible.add(n.id);
-        }
+// ─── VALIDATE LINKS ───
+(function() {
+    const nodeIds = new Set(graphData.nodes.map(n => n.id));
+    graphData.links = graphData.links.filter(l => {
+        const s = typeof l.source === "object" ? l.source.id : l.source;
+        const t = typeof l.target === "object" ? l.target.id : l.target;
+        const ok = nodeIds.has(s) && nodeIds.has(t);
+        if (!ok) console.warn("Removed bad link:", s, "→", t);
+        return ok;
     });
-    visible.add("epstein");
-    return visible;
-}
+})();
 
-// ─── SVG SETUP ───
-const svg = d3.select("#graph")
-    .attr("width", width)
-    .attr("height", height);
-
+// ─── SVG ───
+const svg = d3.select("#graph").attr("width", width).attr("height", height);
 const g = svg.append("g");
-const zoom = d3.zoom()
-    .scaleExtent([0.2, 5])
-    .on("zoom", (event) => g.attr("transform", event.transform));
-svg.call(zoom);
-
+svg.call(d3.zoom().scaleExtent([0.2, 5]).on("zoom", e => g.attr("transform", e.transform)));
 const tooltip = d3.select("#tooltip");
 
-// ─── DROP SHADOW FILTER ───
 const defs = svg.append("defs");
-const shadowFilter = defs.append("filter").attr("id", "shadow")
+const shadow = defs.append("filter").attr("id", "shadow")
     .attr("x", "-50%").attr("y", "-50%").attr("width", "200%").attr("height", "200%");
-shadowFilter.append("feDropShadow")
-    .attr("dx", 0).attr("dy", 2)
-    .attr("stdDeviation", 4)
-    .attr("flood-color", "rgba(0,0,0,0.15)");
+shadow.append("feDropShadow").attr("dx", 0).attr("dy", 2).attr("stdDeviation", 4).attr("flood-color", "rgba(0,0,0,0.3)");
 
 // ─── SIMULATION ───
 const simulation = d3.forceSimulation(graphData.nodes)
-    .force("link", d3.forceLink(graphData.links)
-        .id(d => d.id)
-        .distance(d => 140 / d.strength)
-    )
+    .force("link", d3.forceLink(graphData.links).id(d => d.id).distance(d => 140 / d.strength))
     .force("charge", d3.forceManyBody().strength(-300))
     .force("center", d3.forceCenter(width / 2, height / 2))
     .force("collision", d3.forceCollide().radius(d => d.radius + 8));
 
 // ─── LINKS ───
-const link = g.append("g")
-    .attr("class", "links")
-    .selectAll("line")
-    .data(graphData.links)
-    .join("line")
-    .attr("stroke", linkColor)
-    .attr("stroke-width", d => d.strength * 2)
-    .attr("stroke-opacity", 0.5);
+const link = g.append("g").selectAll("line")
+    .data(graphData.links).join("line")
+    .attr("stroke", "#333").attr("stroke-width", d => d.strength * 2).attr("stroke-opacity", 0.5);
 
 // ─── NODES ───
-const node = g.append("g")
-    .attr("class", "nodes")
-    .selectAll("g")
-    .data(graphData.nodes)
-    .join("g")
-    .style("cursor", "pointer");
+const node = g.append("g").selectAll("g")
+    .data(graphData.nodes).join("g").style("cursor", "pointer");
 
-// Circles
 node.append("circle")
     .attr("r", d => d.radius)
     .attr("fill", d => getNodeColor(d))
     .attr("fill-opacity", 0.85)
-    .attr("stroke", "#fff")
+    .attr("stroke", "#1a1a2e")
     .attr("stroke-width", 2.5)
     .style("filter", "url(#shadow)");
 
-// Labels
 node.append("text")
     .text(d => d.label)
     .attr("text-anchor", "middle")
     .attr("dy", d => d.radius + 14)
-    .attr("fill", labelColor)
+    .attr("fill", "#ccc")
     .attr("font-size", d => d.type === "center" ? "12px" : "10px")
     .attr("font-weight", "600")
     .attr("paint-order", "stroke")
-    .attr("stroke", "#f5f5f5")
+    .attr("stroke", "#0a0a0f")
     .attr("stroke-width", 3)
     .style("pointer-events", "none");
 
 // ─── DRAG ───
 node.call(d3.drag()
-    .on("start", function (event, d) {
-        if (!event.active) simulation.alphaTarget(0.3).restart();
-        d.fx = d.x;
-        d.fy = d.y;
-    })
-    .on("drag", function (event, d) {
-        d.fx = event.x;
-        d.fy = event.y;
-    })
-    .on("end", function (event, d) {
-        if (!event.active) simulation.alphaTarget(0);
-        d.fx = null;
-        d.fy = null;
-    })
+    .on("start", (e, d) => { if (!e.active) simulation.alphaTarget(0.3).restart(); d.fx = d.x; d.fy = d.y; })
+    .on("drag", (e, d) => { d.fx = e.x; d.fy = e.y; })
+    .on("end", (e, d) => { if (!e.active) simulation.alphaTarget(0); d.fx = null; d.fy = null; })
 );
 
-// ─── ALL NODE INTERACTIONS (single chained block) ───
+// ─── HOVER & CLICK ───
 node
-    .on("click", function (event, d) {
-        event.stopPropagation();
-        openDossier(d);
-    })
+    .on("click", (e, d) => { e.stopPropagation(); openDossier(d); })
     .on("mouseover", function (event, d) {
-        // Skip dimmed nodes in filtered view
-        if (activeCategory !== "all") {
-            const visibleNodes = getVisibleNodes(activeCategory);
-            if (!visibleNodes.has(d.id)) return;
-        }
-
-        // Build rich tooltip content
+        const vis = getVisibleNodes();
+        if (!vis.has(d.id)) return;
+        const nc = getNodeColor(d);
         const cats = categoryMap[d.id] || [];
-        const nodeColor = getNodeColor(d);
-        
-        // Count connections
-        const connectionCount = graphData.links.filter(l => {
-            const sid = typeof l.source === "object" ? l.source.id : l.source;
-            const tid = typeof l.target === "object" ? l.target.id : l.target;
-            return sid === d.id || tid === d.id;
+        const cc = graphData.links.filter(l => {
+            const s = typeof l.source === "object" ? l.source.id : l.source;
+            const t = typeof l.target === "object" ? l.target.id : l.target;
+            return s === d.id || t === d.id;
         }).length;
-
-        let tooltipHtml = `
-            <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px;">
-                <div style="width:10px;height:10px;border-radius:50%;background:${nodeColor};flex-shrink:0;"></div>
-                <strong style="font-size:14px;">${d.label}</strong>
-            </div>`;
-        
-        if (d.role) {
-            tooltipHtml += `<div style="font-size:11px;color:#666;margin-bottom:4px;">${d.role}</div>`;
+        let h = `<div style="display:flex;align-items:center;gap:8px;margin-bottom:6px;">
+            <div style="width:10px;height:10px;border-radius:50%;background:${nc};box-shadow:0 0 6px ${nc};"></div>
+            <strong style="font-size:14px;">${d.label}</strong></div>`;
+        if (d.role) h += `<div style="font-size:11px;opacity:0.7;margin-bottom:4px;">${d.role}</div>`;
+        const dc = cats.filter(c => c !== "all");
+        if (dc.length) {
+            h += `<div style="display:flex;flex-wrap:wrap;gap:3px;margin:6px 0;">`;
+            dc.forEach(c => { const col = categoryColors[c] || "#888"; h += `<span style="font-size:9px;padding:2px 6px;border-radius:3px;background:${col}33;color:${col};font-weight:600;text-transform:uppercase;">${c}</span>`; });
+            h += `</div>`;
         }
-        
-        // Category tags
-        const displayCats = cats.filter(c => c !== "all");
-        if (displayCats.length > 0) {
-            tooltipHtml += `<div style="display:flex;flex-wrap:wrap;gap:3px;margin:6px 0;">`;
-            displayCats.forEach(c => {
-                tooltipHtml += `<span style="
-                    font-size:9px;
-                    padding:2px 6px;
-                    border-radius:3px;
-                    background:${categoryColors[c]}22;
-                    color:${categoryColors[c]};
-                    font-weight:600;
-                    text-transform:uppercase;
-                    letter-spacing:0.3px;
-                ">${c}</span>`;
-            });
-            tooltipHtml += `</div>`;
-        }
-
-        if (d.status) {
-            tooltipHtml += `<div style="font-size:11px;margin-top:4px;padding:3px 6px;background:${d.type === 'convicted' ? '#991b1b11' : '#f0f0f0'};border-radius:3px;color:${d.type === 'convicted' ? '#991b1b' : '#666'};">⚖ ${d.status}</div>`;
-        }
-
-        if (d.agency) {
-            tooltipHtml += `<div style="font-size:10px;color:#888;margin-top:4px;">🏛 ${d.agency}</div>`;
-        }
-
-        if (d.networth) {
-            tooltipHtml += `<div style="font-size:10px;color:#888;margin-top:2px;">💰 ${d.networth}</div>`;
-        }
-
-        tooltipHtml += `<div style="font-size:10px;color:#aaa;margin-top:6px;padding-top:5px;border-top:1px solid #eee;">🕸 ${connectionCount} connection${connectionCount !== 1 ? 's' : ''} · Click for dossier</div>`;
-
-        // Show tooltip
-        tooltip
-            .style("display", "block")
-            .style("position", "fixed")
-            .style("z-index", "99999")
-            .style("pointer-events", "none")
-            .style("padding", "10px 14px")
-            .style("background", "rgba(255,255,255,0.98)")
-            .style("border", "1px solid #ddd")
-            .style("border-left", `3px solid ${nodeColor}`)
-            .style("border-radius", "8px")
-            .style("box-shadow", "0 4px 16px rgba(0,0,0,0.12)")
-            .style("max-width", "280px")
-            .style("font-size", "12px")
-            .style("line-height", "1.4")
-            .html(tooltipHtml)
-            .style("left", (event.clientX + 15) + "px")
-            .style("top", (event.clientY - 10) + "px");
-
-        // Highlight connected nodes
-        const connectedIds = new Set();
-        connectedIds.add(d.id);
-        graphData.links.forEach(l => {
-            const sid = typeof l.source === "object" ? l.source.id : l.source;
-            const tid = typeof l.target === "object" ? l.target.id : l.target;
-            if (sid === d.id) connectedIds.add(tid);
-            if (tid === d.id) connectedIds.add(sid);
-        });
-
-        node.transition().duration(200)
-            .style("opacity", n => connectedIds.has(n.id) ? 1 : 0.1);
-
-        link.transition().duration(200)
-            .attr("stroke-opacity", l => {
-                const sid = typeof l.source === "object" ? l.source.id : l.source;
-                const tid = typeof l.target === "object" ? l.target.id : l.target;
-                return (sid === d.id || tid === d.id) ? 0.6 : 0.03;
-            });
+        if (d.status) h += `<div style="font-size:11px;margin-top:4px;padding:3px 6px;background:rgba(255,255,255,0.05);border-radius:3px;">⚖ ${d.status}</div>`;
+        if (d.agency) h += `<div style="font-size:10px;opacity:0.5;margin-top:4px;">🏛 ${d.agency}</div>`;
+        if (d.networth) h += `<div style="font-size:10px;opacity:0.5;margin-top:2px;">💰 ${d.networth}</div>`;
+        h += `<div style="font-size:10px;opacity:0.3;margin-top:6px;padding-top:5px;border-top:1px solid rgba(255,255,255,0.1);">🕸 ${cc} connections · Click for dossier</div>`;
+        tooltip.style("display", "block").style("border-left", `3px solid ${nc}`).html(h)
+            .style("left", (event.clientX + 15) + "px").style("top", (event.clientY - 10) + "px");
     })
-    .on("mousemove", function (event) {
-        tooltip
-            .style("left", (event.clientX + 15) + "px")
-            .style("top", (event.clientY - 10) + "px");
-    })
-    .on("mouseout", function () {
-        tooltip.style("display", "none");
+    .on("mousemove", (event) => { tooltip.style("left", (event.clientX + 15) + "px").style("top", (event.clientY - 10) + "px"); })
+    .on("mouseout", () => { tooltip.style("display", "none"); });
 
-        if (activeCategory === "all") {
-            node.transition().duration(200).style("opacity", 1);
-            link.transition().duration(200).attr("stroke-opacity", 0.5);
-        } else {
-            const visibleNodes = getVisibleNodes(activeCategory);
-            node.transition().duration(200)
-                .style("opacity", n => visibleNodes.has(n.id) ? 1 : 0.08);
-            link.transition().duration(200)
-                .attr("stroke-opacity", l => {
-                    const sid = typeof l.source === "object" ? l.source.id : l.source;
-                    const tid = typeof l.target === "object" ? l.target.id : l.target;
-                    return (visibleNodes.has(sid) && visibleNodes.has(tid)) ? 0.5 : 0.03;
-                });
-        }
-    });
-
-// ─── FILTER TABS ───
+// ─── CHECKBOX FILTERS ───
 const tabBar = document.getElementById("filterTabs");
 const categories = [
     { key: "all", label: "All" },
+    { key: "most suspicious", label: "🔴 Most Suspicious" },
+    { key: "likely involved", label: "🟠 Likely Involved" },
     { key: "politicians", label: "Politicians" },
     { key: "billionaires", label: "Billionaires" },
     { key: "royals", label: "Royals" },
@@ -361,42 +292,89 @@ const categories = [
     { key: "predators", label: "⚠ Predators" }
 ];
 
-if (tabBar) {
-    categories.forEach(cat => {
-        const btn = document.createElement("button");
-        btn.className = "filter-tab" + (cat.key === "all" ? " active" : "");
-        btn.textContent = cat.label;
-        btn.dataset.category = cat.key;
-        btn.style.borderBottomColor = cat.key === "all" ? categoryColors[cat.key] : "transparent";
-        btn.addEventListener("click", () => filterByCategory(cat.key));
-        tabBar.appendChild(btn);
-    });
-}
-
-function filterByCategory(category) {
-    activeCategory = category;
-
-    document.querySelectorAll(".filter-tab").forEach(btn => {
-        const isActive = btn.dataset.category === category;
-        btn.classList.toggle("active", isActive);
-        btn.style.borderBottomColor = isActive ? categoryColors[category] : "transparent";
-    });
-
-    const visibleNodes = getVisibleNodes(category);
-
+function applyFilters() {
+    const vis = getVisibleNodes();
     node.transition().duration(400)
-        .style("opacity", d => visibleNodes.has(d.id) ? 1 : 0.08)
-        .style("pointer-events", d => visibleNodes.has(d.id) ? "all" : "none");
-
+        .style("opacity", d => vis.has(d.id) ? 1 : 0.04)
+        .style("pointer-events", d => vis.has(d.id) ? "all" : "none");
     link.transition().duration(400)
         .attr("stroke-opacity", d => {
-            const srcVisible = visibleNodes.has(d.source.id);
-            const tgtVisible = visibleNodes.has(d.target.id);
-            return (srcVisible && tgtVisible) ? 0.5 : 0.03;
+            const s = typeof d.source === "object" ? d.source.id : d.source;
+            const t = typeof d.target === "object" ? d.target.id : d.target;
+            return (vis.has(s) && vis.has(t)) ? 0.5 : 0.02;
         });
+    document.querySelectorAll(".filter-check-label").forEach(lbl => {
+        const k = lbl.dataset.category;
+        const on = activeCategories.has(k);
+        lbl.classList.toggle("active", on);
+        lbl.style.borderBottomColor = on ? (categoryColors[k] || "#aaa") : "transparent";
+    });
 }
 
-// ─── DOSSIER PANEL LOGIC ───
+if (tabBar) {
+    categories.forEach((cat, i) => {
+        // Separator before the main categories
+        if (i === 3) {
+            const sep = document.createElement("div");
+            sep.className = "filter-separator";
+            tabBar.appendChild(sep);
+        }
+
+        const accentColor = categoryColors[cat.key] || "#aaa";
+        const label = document.createElement("label");
+        label.className = "filter-check-label" + (cat.key === "all" ? " active" : "");
+        label.dataset.category = cat.key;
+
+        const cb = document.createElement("input");
+        cb.type = "checkbox";
+        cb.checked = cat.key === "all";
+        if (cb.checked) cb.style.background = accentColor;
+
+        cb.addEventListener("change", () => {
+            // Update visual
+            cb.style.background = cb.checked ? accentColor : "transparent";
+
+            if (cat.key === "all") {
+                if (cb.checked) {
+                    activeCategories.clear();
+                    activeCategories.add("all");
+                    tabBar.querySelectorAll("input[type=checkbox]").forEach(x => {
+                        if (x !== cb) { x.checked = false; x.style.background = "transparent"; }
+                    });
+                } else {
+                    activeCategories.delete("all");
+                    if (activeCategories.size === 0) { activeCategories.add("all"); cb.checked = true; cb.style.background = accentColor; }
+                }
+            } else {
+                if (cb.checked) {
+                    activeCategories.add(cat.key);
+                    activeCategories.delete("all");
+                    const allCb = tabBar.querySelector("input[type=checkbox]");
+                    if (allCb) { allCb.checked = false; allCb.style.background = "transparent"; }
+                } else {
+                    activeCategories.delete(cat.key);
+                    if (activeCategories.size === 0) {
+                        activeCategories.add("all");
+                        const allCb = tabBar.querySelector("input[type=checkbox]");
+                        if (allCb) { allCb.checked = true; allCb.style.background = categoryColors["all"]; }
+                    }
+                }
+            }
+            applyFilters();
+        });
+
+        const dot = document.createElement("span");
+        dot.className = "filter-dot";
+        dot.style.background = accentColor;
+
+        label.appendChild(cb);
+        label.appendChild(dot);
+        label.appendChild(document.createTextNode(" " + cat.label));
+        tabBar.appendChild(label);
+    });
+}
+
+// ─── DOSSIER ───
 const dossierOverlay = document.getElementById("dossierOverlay");
 const dossierPanel = document.getElementById("dossierPanel");
 const dossierClose = document.getElementById("dossierClose");
@@ -406,103 +384,56 @@ const dossierBadges = document.getElementById("dossierBadges");
 const dossierBody = document.getElementById("dossierBody");
 
 function openDossier(d) {
-    const typeColor = getNodeColor(d);
-
+    const tc = getNodeColor(d);
     dossierName.textContent = d.label;
     dossierRole.textContent = d.agency || "";
-
-    // Badges
     dossierBadges.innerHTML = "";
-    if (d.status) {
-        const statusBadge = document.createElement("span");
-        statusBadge.className = "dossier-badge badge-status";
-        statusBadge.textContent = d.status;
-        dossierBadges.appendChild(statusBadge);
-    }
-    const typeBadge = document.createElement("span");
-    typeBadge.className = "dossier-badge badge-type";
-    typeBadge.style.background = typeColor;
-    typeBadge.textContent = d.type.toUpperCase();
-    dossierBadges.appendChild(typeBadge);
-
+    if (d.status) { const s = document.createElement("span"); s.className = "dossier-badge badge-status"; s.textContent = d.status; dossierBadges.appendChild(s); }
+    const tb = document.createElement("span"); tb.className = "dossier-badge badge-type"; tb.style.background = tc; tb.textContent = d.type.toUpperCase(); dossierBadges.appendChild(tb);
     const cats = categoryMap[d.id] || [];
-    cats.forEach(c => {
-        if (c === "all") return;
-        const catBadge = document.createElement("span");
-        catBadge.className = "dossier-badge badge-type";
-        catBadge.style.background = categoryColors[c];
-        catBadge.style.opacity = "0.8";
-        catBadge.textContent = c.toUpperCase();
-        dossierBadges.appendChild(catBadge);
-    });
+    cats.forEach(c => { if (c === "all") return; const b = document.createElement("span"); b.className = "dossier-badge badge-type"; b.style.background = categoryColors[c] || "#666"; b.style.opacity = "0.8"; b.textContent = c.toUpperCase(); dossierBadges.appendChild(b); });
 
-    let html = "";
+    let h = `<div class="dossier-meta">`;
+    if (d.role) h += `<div class="dossier-meta-item"><div class="dossier-meta-label">Role</div><div class="dossier-meta-value">${d.role}</div></div>`;
+    if (d.networth) h += `<div class="dossier-meta-item"><div class="dossier-meta-label">Net Worth</div><div class="dossier-meta-value">${d.networth}</div></div>`;
+    if (d.agency) h += `<div class="dossier-meta-item"><div class="dossier-meta-label">Affiliation</div><div class="dossier-meta-value">${d.agency}</div></div>`;
+    if (d.status) h += `<div class="dossier-meta-item"><div class="dossier-meta-label">Legal Status</div><div class="dossier-meta-value">${d.status}</div></div>`;
+    h += `</div>`;
+    if (d.intelRole) h += `<div class="dossier-highlight"><p>⚠️ ${d.intelRole}</p></div>`;
+    if (d.epsteinLink) h += `<div class="dossier-section"><div class="dossier-section-title">🔗 Epstein Connection</div><div class="dossier-section-text">${d.epsteinLink}</div></div>`;
+    if (d.desc) h += `<div class="dossier-section"><div class="dossier-section-title">📋 Background</div><div class="dossier-section-text">${d.desc}</div></div>`;
+    if (d.evidence) h += `<div class="dossier-section"><div class="dossier-section-title">📁 Evidence</div><div class="dossier-section-text">${d.evidence}</div></div>`;
+    if (d.significance) h += `<div class="dossier-section"><div class="dossier-section-title">⚡ Significance</div><div class="dossier-section-text">${d.significance}</div></div>`;
 
-    html += `<div class="dossier-meta">`;
-    if (d.role) html += `<div class="dossier-meta-item"><div class="dossier-meta-label">Role</div><div class="dossier-meta-value">${d.role}</div></div>`;
-    if (d.networth) html += `<div class="dossier-meta-item"><div class="dossier-meta-label">Net Worth</div><div class="dossier-meta-value">${d.networth}</div></div>`;
-    if (d.agency) html += `<div class="dossier-meta-item"><div class="dossier-meta-label">Affiliation</div><div class="dossier-meta-value">${d.agency}</div></div>`;
-    if (d.status) html += `<div class="dossier-meta-item"><div class="dossier-meta-label">Legal Status</div><div class="dossier-meta-value">${d.status}</div></div>`;
-    html += `</div>`;
-
-    if (d.intelRole) html += `<div class="dossier-highlight"><p>⚠️ ${d.intelRole}</p></div>`;
-    if (d.epsteinLink) html += `<div class="dossier-section"><div class="dossier-section-title">🔗 Epstein Connection</div><div class="dossier-section-text">${d.epsteinLink}</div></div>`;
-    if (d.desc) html += `<div class="dossier-section"><div class="dossier-section-title">📋 Background</div><div class="dossier-section-text">${d.desc}</div></div>`;
-    if (d.evidence) html += `<div class="dossier-section"><div class="dossier-section-title">📁 Evidence & Documentation</div><div class="dossier-section-text">${d.evidence}</div></div>`;
-    if (d.significance) html += `<div class="dossier-section"><div class="dossier-section-title">⚡ Significance</div><div class="dossier-section-text">${d.significance}</div></div>`;
-
-    const connections = graphData.links.filter(l => l.source.id === d.id || l.target.id === d.id);
-    if (connections.length > 0) {
-        html += `<div class="dossier-section"><div class="dossier-section-title">🕸️ Network Connections (${connections.length})</div><div class="dossier-connections">`;
-        connections.forEach(l => {
-            const otherId = l.source.id === d.id ? l.target.id : l.source.id;
-            const otherNode = graphData.nodes.find(n => n.id === otherId);
-            if (otherNode) {
-                const strength = Math.round(l.strength * 100);
-                const barColor = getNodeColor(otherNode);
-                html += `<div class="dossier-connection-item" data-node-id="${otherId}">
-                    <div class="dossier-connection-dot" style="background:${barColor}"></div>
-                    <div class="dossier-connection-name">${otherNode.label}</div>
-                    <div class="dossier-connection-bar"><div class="dossier-connection-fill" style="width:${strength}%; background:${barColor}"></div></div>
-                </div>`;
-            }
+    const conns = graphData.links.filter(l => l.source.id === d.id || l.target.id === d.id);
+    if (conns.length) {
+        h += `<div class="dossier-section"><div class="dossier-section-title">🕸️ Network Connections (${conns.length})</div><div class="dossier-connections">`;
+        conns.forEach(l => {
+            const oid = l.source.id === d.id ? l.target.id : l.source.id;
+            const o = graphData.nodes.find(n => n.id === oid);
+            if (o) { const str = Math.round(l.strength * 100); const bc = getNodeColor(o); h += `<div class="dossier-connection-item" data-node-id="${oid}"><div class="dossier-connection-dot" style="background:${bc}"></div><div class="dossier-connection-name">${o.label}</div><div class="dossier-connection-bar"><div class="dossier-connection-fill" style="width:${str}%;background:${bc}"></div></div></div>`; }
         });
-        html += `</div></div>`;
+        h += `</div></div>`;
     }
+    if (d.link) h += `<div class="dossier-section dossier-conclusion"><div class="dossier-section-title">🔍 Why This Matters</div><div class="dossier-section-text">${d.link}</div></div>`;
+    h += `<div class="dossier-disclaimer"><p>Compiled from publicly available court documents, DOJ file releases, flight logs, and sworn depositions. Inclusion does not imply guilt.</p></div>`;
 
-    if (d.link) html += `<div class="dossier-section dossier-conclusion"><div class="dossier-section-title">🔍 Why This Matters</div><div class="dossier-section-text">${d.link}</div></div>`;
-
-    html += `<div class="dossier-disclaimer"><p>This dossier is compiled from publicly available court documents, DOJ file releases, flight logs, and sworn depositions. Inclusion does not imply guilt. Some individuals listed have denied all allegations.</p></div>`;
-
-    dossierBody.innerHTML = html;
-
+    dossierBody.innerHTML = h;
     dossierBody.querySelectorAll(".dossier-connection-item").forEach(item => {
-        item.addEventListener("click", () => {
-            const targetNode = graphData.nodes.find(n => n.id === item.dataset.nodeId);
-            if (targetNode) openDossier(targetNode);
-        });
+        item.addEventListener("click", () => { const t = graphData.nodes.find(n => n.id === item.dataset.nodeId); if (t) openDossier(t); });
     });
-
     dossierPanel.classList.add("active");
     dossierOverlay.classList.add("active");
 }
 
-function closeDossier() {
-    dossierPanel.classList.remove("active");
-    dossierOverlay.classList.remove("active");
-}
-
+function closeDossier() { dossierPanel.classList.remove("active"); dossierOverlay.classList.remove("active"); }
 if (dossierClose) dossierClose.addEventListener("click", closeDossier);
 if (dossierOverlay) dossierOverlay.addEventListener("click", closeDossier);
-document.addEventListener("keydown", (e) => { if (e.key === "Escape") closeDossier(); });
+document.addEventListener("keydown", e => { if (e.key === "Escape") closeDossier(); });
 
 // ─── TICK ───
 simulation.on("tick", () => {
-    link
-        .attr("x1", d => d.source.x)
-        .attr("y1", d => d.source.y)
-        .attr("x2", d => d.target.x)
-        .attr("y2", d => d.target.y);
+    link.attr("x1", d => d.source.x).attr("y1", d => d.source.y).attr("x2", d => d.target.x).attr("y2", d => d.target.y);
     node.attr("transform", d => `translate(${d.x},${d.y})`);
 });
 
@@ -512,3 +443,8 @@ window.addEventListener("resize", () => {
     simulation.force("center", d3.forceCenter(window.innerWidth / 2, window.innerHeight / 2));
     simulation.alpha(0.3).restart();
 });
+
+// ─── INIT ───
+createThemeToggle();
+applyTheme();
+applyFilters();
