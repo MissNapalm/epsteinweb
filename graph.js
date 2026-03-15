@@ -167,7 +167,7 @@ function getVisibleNodes() {
 function getNodeColor(d) {
     if (d.type === "center") return "#000000";
     if (d.type === "convicted") return "#991b1b";
-    if (d.type === "likely") return "#87CEEB";
+    if (d.type === "possibly") return "#87CEEB";
     const cats = categoryMap[d.id] || [];
     if (cats.includes("possibly involved")) return "#87CEEB";
     if (cats.includes("politicians")) return categoryColors.politicians;
@@ -374,7 +374,7 @@ const tabBar = document.getElementById("filterTabs");
 const categories = [
     { key: "all", label: "All" },
     { key: "most suspicious", label: "🔴 Most Suspicious" },
-    { key: "possibly involved", label: "🔵 Possibly Involved" },
+    { key: "possibly involved", label: "🟠 Possibly Involved" },
     { key: "politicians", label: "Politicians" },
     { key: "billionaires", label: "Billionaires" },
     { key: "royals", label: "Royals" },
@@ -464,7 +464,7 @@ if (tabBar) {
                     activeCategories.add(cat.key);
                     activeCategories.delete("all");
                     const allCb = tabBar.querySelector("input[type=checkbox]");
-                    if allCb) { allCb.checked = false; allCb.style.background = "transparent"; }
+                    if (allCb) { allCb.checked = false; allCb.style.background = "transparent"; }
                 } else {
                     activeCategories.delete(cat.key);
                     // If nothing left (besides maybe possibly involved), re-enable "all"
