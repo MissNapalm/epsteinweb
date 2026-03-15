@@ -19,9 +19,9 @@ const categoryColors = {
     "finance": "#16a34a",
     "convicted": "#991b1b",
     "intelligence": "#6d28d9",
-    "predators": "#dc2626",
     "most suspicious": "#ff0000",
-    "possibly involved": "#87CEEB"
+    "possibly involved": "#87CEEB",
+    "birthday book": "#f59e0b"
 };
 
 const categoryMap = {
@@ -36,7 +36,7 @@ const categoryMap = {
     gates: ["all", "billionaires"],
     wexner: ["all", "billionaires", "intelligence", "most suspicious"],
     staley: ["all", "finance", "most suspicious"],
-    dubin: ["all", "finance", "billionaires"],
+    dubin: ["all", "finance", "billionaires", "birthday book"],
     mitchell: ["all", "politicians"],
     sultan_brunei: ["all", "royals", "billionaires"],
     dershowitz: ["all", "academics", "intelligence", "most suspicious"],
@@ -45,11 +45,11 @@ const categoryMap = {
     summers: ["all", "academics", "politicians"],
     hoffman: ["all", "billionaires"],
     krauss: ["all", "academics"],
-    copperfield: ["all", "entertainment"],
+    copperfield: ["all", "entertainment", "birthday book"],
     dimon: ["all", "finance"],
     blair: ["all", "politicians"],
-    mort_z: ["all", "billionaires"],
-    pritzker: ["all", "billionaires"],
+    mort_z: ["all", "billionaires", "birthday book"],
+    pritzker: ["all", "billionaires", "birthday book"],
     burkle: ["all", "billionaires", "politicians"],
     lutnick: ["all", "finance", "politicians", "most suspicious"],
     branson: ["all", "billionaires"],
@@ -66,7 +66,7 @@ const categoryMap = {
     richardson: ["all", "politicians"],
     sultan_ahmed: ["all", "finance"],
     hawking: ["all", "academics"],
-    naomi: ["all", "entertainment"],
+    naomi: ["all", "entertainment", "birthday book"],
     minsky: ["all", "academics", "predators"],
     pinker: ["all", "academics"],
     chomsky: ["all", "academics"],
@@ -87,6 +87,21 @@ const categoryMap = {
     khashoggi: ["all", "intelligence", "finance"],
     dougan: ["all", "intelligence"],
     thalberg: ["all", "politicians"],
+    // ── BIRTHDAY BOOK / INNER CIRCLE ──
+    kellen: ["all", "predators", "birthday book"],
+    marcinkova: ["all", "predators", "birthday book"],
+    groff: ["all", "birthday book"],
+    eva_dubin: ["all", "birthday book"],
+    briatore: ["all", "entertainment", "billionaires", "birthday book"],
+    ari_emanuel: ["all", "entertainment", "birthday book"],
+    kravis: ["all", "finance", "billionaires", "birthday book"],
+    stroll: ["all", "billionaires", "birthday book"],
+    fiennes: ["all", "entertainment", "birthday book"],
+    blanchett: ["all", "entertainment", "birthday book"],
+    alec_baldwin: ["all", "entertainment", "birthday book"],
+    christy_turlington: ["all", "entertainment", "birthday book"],
+    david_koch: ["all", "billionaires", "birthday book"],
+    itzhak_perlman: ["all", "entertainment", "birthday book"],
     // POSSIBLY INVOLVED — NOT in "all"
     putin: ["possibly involved", "intelligence"],
     king_charles: ["possibly involved", "royals"],
@@ -385,6 +400,7 @@ const categories = [
     { key: "convicted", label: "Convicted" },
     { key: "intelligence", label: "Intelligence" },
     { key: "predators", label: "Predators" },
+    { key: "birthday book", label: "🎂 Birthday Book" },
     { key: "possibly involved", label: "🔵 Possibly Involved" },
 ];
 
