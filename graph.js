@@ -98,7 +98,8 @@ const categoryMap = {
     comey: ["possibly involved", "intelligence"],
     starr: ["possibly involved"],
     boies: ["possibly involved"],
-    ellison: ["possibly involved", "billionaires"]
+    ellison: ["possibly involved", "billionaires"],
+    netanyahu: ["possibly involved", "politicians", "intelligence"],
 };
 
 // ─── THEME ───
