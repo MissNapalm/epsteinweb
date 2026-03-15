@@ -147,9 +147,13 @@ function getVisibleNodes() {
     graphData.nodes.forEach(n => {
         const cats = categoryMap[n.id] || ["all"];
         const isLikely = cats.includes("likely involved");
-        // If this is a "likely involved" node, ONLY show it when that filter is on
+        // Likely involved nodes ONLY show when that toggle is on
         if (isLikely && !likelyActive) return;
+        // For likely nodes, if the toggle is on, show them
+        if (isLikely && likelyActive) { visible.add(n.id); return; }
+        // Normal filtering for everything else
         for (const ac of activeCategories) {
+            if (ac === "likely involved") continue; // skip — handled above
             if (cats.includes(ac)) {
                 visible.add(n.id);
                 break;
@@ -202,29 +206,43 @@ shadow.append("feDropShadow").attr("dx", 0).attr("dy", 2).attr("stdDeviation", 4
 // ─── SIMULATION ───
 const simulation = d3.forceSimulation(graphData.nodes)
     .force("link", d3.forceLink(graphData.links).id(d => d.id).distance(d => {
-        // Shorter distances for likely involved nodes
         const sid = typeof d.source === "object" ? d.source.id : d.source;
         const tid = typeof d.target === "object" ? d.target.id : d.target;
         const srcCats = categoryMap[sid] || [];
         const tgtCats = categoryMap[tid] || [];
         const hasLikely = srcCats.includes("likely involved") || tgtCats.includes("likely involved");
-        return hasLikely ? 80 / d.strength : 140 / d.strength;
+        return hasLikely ? 100 / d.strength : 140 / d.strength;
     }))
     .force("charge", d3.forceManyBody().strength(d => {
         const cats = categoryMap[d.id] || [];
-        // Likely involved nodes get weaker repulsion so they stay closer
-        return cats.includes("likely involved") ? -100 : -300;
+        return cats.includes("likely involved") ? -200 : -300;
     }))
     .force("center", d3.forceCenter(width / 2, height / 2))
     .force("collision", d3.forceCollide().radius(d => d.radius + 8))
-    // Pull likely involved nodes toward center
-    .force("x", d3.forceX(width / 2).strength(d => {
+    .force("x", d3.forceX().x(d => {
         const cats = categoryMap[d.id] || [];
-        return cats.includes("likely involved") ? 0.15 : 0.02;
+        if (cats.includes("likely involved")) {
+            // Spread likely nodes in a ring around center using their index as angle
+            const idx = graphData.nodes.indexOf(d);
+            const angle = (idx * 2.39996) % (Math.PI * 2); // golden angle for even spread
+            return width / 2 + Math.cos(angle) * 180;
+        }
+        return width / 2;
+    }).strength(d => {
+        const cats = categoryMap[d.id] || [];
+        return cats.includes("likely involved") ? 0.08 : 0.02;
     }))
-    .force("y", d3.forceY(height / 2).strength(d => {
+    .force("y", d3.forceY().y(d => {
         const cats = categoryMap[d.id] || [];
-        return cats.includes("likely involved") ? 0.15 : 0.02;
+        if (cats.includes("likely involved")) {
+            const idx = graphData.nodes.indexOf(d);
+            const angle = (idx * 2.39996) % (Math.PI * 2);
+            return height / 2 + Math.sin(angle) * 180;
+        }
+        return height / 2;
+    }).strength(d => {
+        const cats = categoryMap[d.id] || [];
+        return cats.includes("likely involved") ? 0.08 : 0.02;
     }));
 
 // ─── LINKS ───
@@ -352,21 +370,41 @@ if (tabBar) {
         if (cb.checked) cb.style.background = accentColor;
 
         cb.addEventListener("change", () => {
-            // Update visual
             cb.style.background = cb.checked ? accentColor : "transparent";
 
-            if (cat.key === "all") {
+            if (cat.key === "likely involved") {
+                // Likely involved is a standalone toggle — doesn't affect other filters
                 if (cb.checked) {
+                    activeCategories.add("likely involved");
+                } else {
+                    activeCategories.delete("likely involved");
+                }
+            } else if (cat.key === "all") {
+                if (cb.checked) {
+                    // Turn on "all", turn off everything EXCEPT "likely involved"
+                    const hadLikely = activeCategories.has("likely involved");
                     activeCategories.clear();
                     activeCategories.add("all");
+                    if (hadLikely) activeCategories.add("likely involved");
                     tabBar.querySelectorAll("input[type=checkbox]").forEach(x => {
-                        if (x !== cb) { x.checked = false; x.style.background = "transparent"; }
+                        const lbl = x.closest(".filter-check-label");
+                        if (!lbl) return;
+                        const k = lbl.dataset.category;
+                        if (k !== "all" && k !== "likely involved") {
+                            x.checked = false;
+                            x.style.background = "transparent";
+                        }
                     });
                 } else {
                     activeCategories.delete("all");
-                    if (activeCategories.size === 0) { activeCategories.add("all"); cb.checked = true; cb.style.background = accentColor; }
+                    if (!activeCategories.has("likely involved") && activeCategories.size === 0) {
+                        activeCategories.add("all");
+                        cb.checked = true;
+                        cb.style.background = accentColor;
+                    }
                 }
             } else {
+                // Normal category — doesn't affect "likely involved"
                 if (cb.checked) {
                     activeCategories.add(cat.key);
                     activeCategories.delete("all");
@@ -374,7 +412,9 @@ if (tabBar) {
                     if (allCb) { allCb.checked = false; allCb.style.background = "transparent"; }
                 } else {
                     activeCategories.delete(cat.key);
-                    if (activeCategories.size === 0) {
+                    // If nothing left (besides maybe likely involved), re-enable "all"
+                    const remaining = [...activeCategories].filter(k => k !== "likely involved");
+                    if (remaining.length === 0) {
                         activeCategories.add("all");
                         const allCb = tabBar.querySelector("input[type=checkbox]");
                         if (allCb) { allCb.checked = true; allCb.style.background = categoryColors["all"]; }
