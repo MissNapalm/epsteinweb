@@ -86,7 +86,8 @@ const categoryMap = {
     hoffenberg: ["all", "finance", "intelligence"],
     khashoggi: ["all", "intelligence", "finance"],
     dougan: ["all", "intelligence"],
-    // LIKELY INVOLVED — NOT in "all"
+    thalberg: ["all", "politicians"],
+    // POSSIBLY INVOLVED — NOT in "all"
     putin: ["possibly involved", "intelligence"],
     king_charles: ["possibly involved", "royals"],
     mbs: ["possibly involved", "intelligence"],
@@ -374,7 +375,6 @@ const tabBar = document.getElementById("filterTabs");
 const categories = [
     { key: "all", label: "All" },
     { key: "most suspicious", label: "🔴 Most Suspicious" },
-    { key: "possibly involved", label: "🟠 Possibly Involved" },
     { key: "politicians", label: "Politicians" },
     { key: "billionaires", label: "Billionaires" },
     { key: "royals", label: "Royals" },
@@ -383,7 +383,8 @@ const categories = [
     { key: "finance", label: "Finance" },
     { key: "convicted", label: "Convicted" },
     { key: "intelligence", label: "Intelligence" },
-    { key: "predators", label: "⚠ Predators" }
+    { key: "predators", label: "Predators" },
+    { key: "possibly involved", label: "🔵 Possibly Involved" },
 ];
 
 function applyFilters() {
