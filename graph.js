@@ -201,10 +201,31 @@ shadow.append("feDropShadow").attr("dx", 0).attr("dy", 2).attr("stdDeviation", 4
 
 // ─── SIMULATION ───
 const simulation = d3.forceSimulation(graphData.nodes)
-    .force("link", d3.forceLink(graphData.links).id(d => d.id).distance(d => 140 / d.strength))
-    .force("charge", d3.forceManyBody().strength(-300))
+    .force("link", d3.forceLink(graphData.links).id(d => d.id).distance(d => {
+        // Shorter distances for likely involved nodes
+        const sid = typeof d.source === "object" ? d.source.id : d.source;
+        const tid = typeof d.target === "object" ? d.target.id : d.target;
+        const srcCats = categoryMap[sid] || [];
+        const tgtCats = categoryMap[tid] || [];
+        const hasLikely = srcCats.includes("likely involved") || tgtCats.includes("likely involved");
+        return hasLikely ? 80 / d.strength : 140 / d.strength;
+    }))
+    .force("charge", d3.forceManyBody().strength(d => {
+        const cats = categoryMap[d.id] || [];
+        // Likely involved nodes get weaker repulsion so they stay closer
+        return cats.includes("likely involved") ? -100 : -300;
+    }))
     .force("center", d3.forceCenter(width / 2, height / 2))
-    .force("collision", d3.forceCollide().radius(d => d.radius + 8));
+    .force("collision", d3.forceCollide().radius(d => d.radius + 8))
+    // Pull likely involved nodes toward center
+    .force("x", d3.forceX(width / 2).strength(d => {
+        const cats = categoryMap[d.id] || [];
+        return cats.includes("likely involved") ? 0.15 : 0.02;
+    }))
+    .force("y", d3.forceY(height / 2).strength(d => {
+        const cats = categoryMap[d.id] || [];
+        return cats.includes("likely involved") ? 0.15 : 0.02;
+    }));
 
 // ─── LINKS ───
 const link = g.append("g").selectAll("line")
