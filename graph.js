@@ -6,7 +6,7 @@ const colorMap = {
     convicted: "#991b1b",
     suspicious: "#c2410c",
     unclear: "#4b5563",
-    likely: "#ff6600"
+    possibly: "#87CEEB"
 };
 
 const categoryColors = {
@@ -21,7 +21,7 @@ const categoryColors = {
     "intelligence": "#6d28d9",
     "predators": "#dc2626",
     "most suspicious": "#ff0000",
-    "likely involved": "#ff6600"
+    "possibly involved": "#87CEEB"
 };
 
 const categoryMap = {
@@ -87,17 +87,17 @@ const categoryMap = {
     khashoggi: ["all", "intelligence", "finance"],
     dougan: ["all", "intelligence"],
     // LIKELY INVOLVED — NOT in "all"
-    putin: ["likely involved", "intelligence"],
-    king_charles: ["likely involved", "royals"],
-    mbs: ["likely involved", "intelligence"],
-    kissinger: ["likely involved", "politicians", "intelligence"],
-    brennan: ["likely involved", "intelligence"],
-    murdoch: ["likely involved", "billionaires"],
-    petraeus: ["likely involved", "intelligence"],
-    comey: ["likely involved", "intelligence"],
-    starr: ["likely involved"],
-    boies: ["likely involved"],
-    ellison: ["likely involved", "billionaires"]
+    putin: ["possibly involved", "intelligence"],
+    king_charles: ["possibly involved", "royals"],
+    mbs: ["possibly involved", "intelligence"],
+    kissinger: ["possibly involved", "politicians", "intelligence"],
+    brennan: ["possibly involved", "intelligence"],
+    murdoch: ["possibly involved", "billionaires"],
+    petraeus: ["possibly involved", "intelligence"],
+    comey: ["possibly involved", "intelligence"],
+    starr: ["possibly involved"],
+    boies: ["possibly involved"],
+    ellison: ["possibly involved", "billionaires"]
 };
 
 // ─── THEME ───
@@ -143,17 +143,17 @@ let activeCategories = new Set(["all"]);
 
 function getVisibleNodes() {
     const visible = new Set();
-    const likelyActive = activeCategories.has("likely involved");
+    const likelyActive = activeCategories.has("possibly involved");
     graphData.nodes.forEach(n => {
         const cats = categoryMap[n.id] || ["all"];
-        const isLikely = cats.includes("likely involved");
+        const isLikely = cats.includes("possibly involved");
         // Likely involved nodes ONLY show when that toggle is on
         if (isLikely && !likelyActive) return;
         // For likely nodes, if the toggle is on, show them
         if (isLikely && likelyActive) { visible.add(n.id); return; }
         // Normal filtering for everything else
         for (const ac of activeCategories) {
-            if (ac === "likely involved") continue; // skip — handled above
+            if (ac === "possibly involved") continue; // skip — handled above
             if (cats.includes(ac)) {
                 visible.add(n.id);
                 break;
@@ -167,9 +167,9 @@ function getVisibleNodes() {
 function getNodeColor(d) {
     if (d.type === "center") return "#000000";
     if (d.type === "convicted") return "#991b1b";
-    if (d.type === "likely") return "#ff6600";
+    if (d.type === "likely") return "#87CEEB";
     const cats = categoryMap[d.id] || [];
-    if (cats.includes("likely involved")) return "#ff6600";
+    if (cats.includes("possibly involved")) return "#87CEEB";
     if (cats.includes("politicians")) return categoryColors.politicians;
     if (cats.includes("royals")) return categoryColors.royals;
     if (cats.includes("billionaires")) return categoryColors.billionaires;
@@ -210,18 +210,18 @@ const simulation = d3.forceSimulation(graphData.nodes)
         const tid = typeof d.target === "object" ? d.target.id : d.target;
         const srcCats = categoryMap[sid] || [];
         const tgtCats = categoryMap[tid] || [];
-        const hasLikely = srcCats.includes("likely involved") || tgtCats.includes("likely involved");
+        const hasLikely = srcCats.includes("possibly involved") || tgtCats.includes("possibly involved");
         return hasLikely ? 100 / d.strength : 140 / d.strength;
     }))
     .force("charge", d3.forceManyBody().strength(d => {
         const cats = categoryMap[d.id] || [];
-        return cats.includes("likely involved") ? -200 : -300;
+        return cats.includes("possibly involved") ? -200 : -300;
     }))
     .force("center", d3.forceCenter(width / 2, height / 2))
     .force("collision", d3.forceCollide().radius(d => d.radius + 8))
     .force("x", d3.forceX().x(d => {
         const cats = categoryMap[d.id] || [];
-        if (cats.includes("likely involved")) {
+        if (cats.includes("possibly involved")) {
             // Spread likely nodes in a ring around center using their index as angle
             const idx = graphData.nodes.indexOf(d);
             const angle = (idx * 2.39996) % (Math.PI * 2); // golden angle for even spread
@@ -230,11 +230,11 @@ const simulation = d3.forceSimulation(graphData.nodes)
         return width / 2;
     }).strength(d => {
         const cats = categoryMap[d.id] || [];
-        return cats.includes("likely involved") ? 0.08 : 0.02;
+        return cats.includes("possibly involved") ? 0.08 : 0.02;
     }))
     .force("y", d3.forceY().y(d => {
         const cats = categoryMap[d.id] || [];
-        if (cats.includes("likely involved")) {
+        if (cats.includes("possibly involved")) {
             const idx = graphData.nodes.indexOf(d);
             const angle = (idx * 2.39996) % (Math.PI * 2);
             return height / 2 + Math.sin(angle) * 180;
@@ -242,7 +242,7 @@ const simulation = d3.forceSimulation(graphData.nodes)
         return height / 2;
     }).strength(d => {
         const cats = categoryMap[d.id] || [];
-        return cats.includes("likely involved") ? 0.08 : 0.02;
+        return cats.includes("possibly involved") ? 0.08 : 0.02;
     }));
 
 // ─── LINKS ───
@@ -374,7 +374,7 @@ const tabBar = document.getElementById("filterTabs");
 const categories = [
     { key: "all", label: "All" },
     { key: "most suspicious", label: "🔴 Most Suspicious" },
-    { key: "likely involved", label: "🟠 Likely Involved" },
+    { key: "possibly involved", label: "🔵 Possibly Involved" },
     { key: "politicians", label: "Politicians" },
     { key: "billionaires", label: "Billionaires" },
     { key: "royals", label: "Royals" },
@@ -427,48 +427,48 @@ if (tabBar) {
         cb.addEventListener("change", () => {
             cb.style.background = cb.checked ? accentColor : "transparent";
 
-            if (cat.key === "likely involved") {
+            if (cat.key === "possibly involved") {
                 // Likely involved is a standalone toggle — doesn't affect other filters
                 if (cb.checked) {
-                    activeCategories.add("likely involved");
+                    activeCategories.add("possibly involved");
                 } else {
-                    activeCategories.delete("likely involved");
+                    activeCategories.delete("possibly involved");
                 }
             } else if (cat.key === "all") {
                 if (cb.checked) {
-                    // Turn on "all", turn off everything EXCEPT "likely involved"
-                    const hadLikely = activeCategories.has("likely involved");
+                    // Turn on "all", turn off everything EXCEPT "possibly involved"
+                    const hadLikely = activeCategories.has("possibly involved");
                     activeCategories.clear();
                     activeCategories.add("all");
-                    if (hadLikely) activeCategories.add("likely involved");
+                    if (hadLikely) activeCategories.add("possibly involved");
                     tabBar.querySelectorAll("input[type=checkbox]").forEach(x => {
                         const lbl = x.closest(".filter-check-label");
                         if (!lbl) return;
                         const k = lbl.dataset.category;
-                        if (k !== "all" && k !== "likely involved") {
+                        if (k !== "all" && k !== "possibly involved") {
                             x.checked = false;
                             x.style.background = "transparent";
                         }
                     });
                 } else {
                     activeCategories.delete("all");
-                    if (!activeCategories.has("likely involved") && activeCategories.size === 0) {
+                    if (!activeCategories.has("possibly involved") && activeCategories.size === 0) {
                         activeCategories.add("all");
                         cb.checked = true;
                         cb.style.background = accentColor;
                     }
                 }
             } else {
-                // Normal category — doesn't affect "likely involved"
+                // Normal category — doesn't affect "possibly involved"
                 if (cb.checked) {
                     activeCategories.add(cat.key);
                     activeCategories.delete("all");
                     const allCb = tabBar.querySelector("input[type=checkbox]");
-                    if (allCb) { allCb.checked = false; allCb.style.background = "transparent"; }
+                    if allCb) { allCb.checked = false; allCb.style.background = "transparent"; }
                 } else {
                     activeCategories.delete(cat.key);
-                    // If nothing left (besides maybe likely involved), re-enable "all"
-                    const remaining = [...activeCategories].filter(k => k !== "likely involved");
+                    // If nothing left (besides maybe possibly involved), re-enable "all"
+                    const remaining = [...activeCategories].filter(k => k !== "possibly involved");
                     if (remaining.length === 0) {
                         activeCategories.add("all");
                         const allCb = tabBar.querySelector("input[type=checkbox]");

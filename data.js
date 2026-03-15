@@ -292,8 +292,8 @@ const graphData = {
             significance:"Thalberg's role in Epstein's plea deal and subsequent resignation make him a key figure in the cover-up of Epstein's activities.",
             link:"The prosecutor who oversaw Epstein's plea deal and resigned in disgrace."},
 
-        {id:"putin",label:"Vladimir Putin",type:"likely",radius:34,
-            agency:"President of Russia",role:"President of the Russian Federation",status:"LIKELY INVOLVED",networth:"$200B+ (estimated)",
+        {id:"putin",label:"Vladimir Putin",type:"possibly",radius:34,
+            agency:"President of Russia",role:"President of the Russian Federation",status:"POSSIBLY INVOLVED",networth:"$200B+ (estimated)",
             intelRole:"Robert Maxwell was a confirmed KGB asset. The Maxwell-Mossad-KGB triangle places Russian intelligence within one degree of the Epstein operation.",
             epsteinLink:"No direct documented contact. However, the intelligence architecture surrounding Epstein — through Robert Maxwell's confirmed KGB ties — places Russian intelligence within the operational framework.",
             desc:"Former KGB officer who became President of Russia. Rose through the intelligence ranks during the same period Robert Maxwell was operating as a KGB asset. Has demonstrated a pattern of using kompromat as a primary tool of statecraft.",
@@ -301,8 +301,8 @@ const graphData = {
             significance:"If Epstein's operation was intelligence-linked, Russian intelligence would have been a consumer of the product. Maxwell's KGB ties provide the channel.",
             link:"Putin represents the geopolitical dimension of the Epstein case."},
 
-        {id:"king_charles",label:"King Charles III",type:"likely",radius:38,
-            agency:"British Royal Family",role:"King of the United Kingdom",status:"LIKELY INVOLVED",networth:"$2B+",
+        {id:"king_charles",label:"King Charles III",type:"possibly",radius:38,
+            agency:"British Royal Family",role:"King of the United Kingdom",status:"POSSIBLY INVOLVED",networth:"$2B+",
             intelRole:"Brother of Prince Andrew. Close personal friendship with Jimmy Savile — confirmed serial predator protected by British intelligence.",
             epsteinLink:"Andrew is one of the most prominently named individuals. Charles's friendship with Savile demonstrates a pattern within the Royal Family of maintaining relationships with known predators.",
             desc:"King Charles III maintained a decades-long friendship with Jimmy Savile — posthumously revealed to have sexually abused over 500 people. Charles invited Savile to serve as unofficial adviser and hosted him at royal residences repeatedly.",
@@ -310,8 +310,8 @@ const graphData = {
             significance:"The King maintained a close friendship with the most prolific pedophile in British history while his brother participated in the Epstein trafficking network.",
             link:"King Charles represents the apex of institutional protection."},
 
-        {id:"mbs",label:"Mohammed bin Salman",type:"likely",radius:32,
-            agency:"Kingdom of Saudi Arabia",role:"Crown Prince of Saudi Arabia",status:"LIKELY INVOLVED",networth:"$2B+",
+        {id:"mbs",label:"Mohammed bin Salman",type:"possibly",radius:32,
+            agency:"Kingdom of Saudi Arabia",role:"Crown Prince of Saudi Arabia",status:"POSSIBLY INVOLVED",networth:"$2B+",
             intelRole:"Saudi intelligence has deep ties to the Epstein-adjacent network through Adnan Khashoggi and George Nader.",
             epsteinLink:"No direct documented contact. The Saudi intelligence pipeline runs through Khashoggi, Nader, and Gulf state intelligence.",
             desc:"Crown Prince and de facto ruler of Saudi Arabia. Ordered the murder of journalist Jamal Khashoggi per CIA assessment. Controls Saudi intelligence services.",
@@ -319,7 +319,7 @@ const graphData = {
             significance:"MBS represents the Gulf state dimension of the Epstein network.",
             link:"The Saudi connection runs through decades of intelligence relationships."},
 
-        {id:"kissinger",label:"Henry Kissinger",type:"likely",radius:28,
+        {id:"kissinger",label:"Henry Kissinger",type:"possibly",radius:28,
             agency:"US State Department / NSC",role:"Former Secretary of State",status:"DECEASED (2023)",networth:"$50M (at death)",
             intelRole:"Listed in Epstein's black book. One of the most powerful intelligence-connected figures of the 20th century.",
             epsteinLink:"Named in Epstein's black book with direct contact details. Attended dinners where Epstein was present.",
@@ -328,8 +328,8 @@ const graphData = {
             significance:"Kissinger's presence in Epstein's contact book places the father of modern American intelligence policy within one degree of a sexual blackmail operation.",
             link:"His connection to Epstein raises the question of whether the blackmail operation was connected to the intelligence architecture Kissinger helped build."},
 
-        {id:"brennan",label:"John Brennan",type:"likely",radius:24,
-            agency:"Central Intelligence Agency",role:"Former CIA Director (2013-2017)",status:"LIKELY INVOLVED",
+        {id:"brennan",label:"John Brennan",type:"possibly",radius:24,
+            agency:"Central Intelligence Agency",role:"Former CIA Director (2013-2017)",status:"POSSIBLY INVOLVED",
             intelRole:"CIA Director during a period when the intelligence community failed to act on Epstein's intelligence connections.",
             epsteinLink:"No direct contact documented. As CIA Director, would have had oversight of any intelligence equities connected to Epstein.",
             desc:"Career CIA officer. Director 2013-2017. Previously CIA station chief in Riyadh, connecting him to Saudi intelligence networks.",
@@ -337,8 +337,8 @@ const graphData = {
             significance:"If Epstein was a CIA asset, the Director either authorized it, inherited it, or covered it up.",
             link:"Brennan represents the question: did the CIA Director know about Epstein?"},
 
-        {id:"murdoch",label:"Rupert Murdoch",type:"likely",radius:30,
-            agency:"News Corp / Fox Corporation",role:"Media Mogul",status:"LIKELY INVOLVED",networth:"$20B",
+        {id:"murdoch",label:"Rupert Murdoch",type:"possibly",radius:30,
+            agency:"News Corp / Fox Corporation",role:"Media Mogul",status:"POSSIBLY INVOLVED",networth:"$20B",
             intelRole:"Controls the largest media empire in the English-speaking world. His outlets systematically underreported the Epstein story.",
             epsteinLink:"Listed in Epstein's black book. His media empire killed or buried Epstein stories. Maxwell-Murdoch overlap in British media documented.",
             desc:"Australian-born media mogul. Controls Fox News, NY Post, WSJ, The Sun, The Times. His media power gives him extraordinary influence over public narratives.",
@@ -346,8 +346,8 @@ const graphData = {
             significance:"Murdoch controls the mechanism by which Epstein's story was suppressed.",
             link:"Without media suppression, the Epstein story would have broken years earlier."},
 
-        {id:"petraeus",label:"David Petraeus",type:"likely",radius:22,
-            agency:"CIA / US Army",role:"Former CIA Director, Four-Star General",status:"LIKELY INVOLVED",
+        {id:"petraeus",label:"David Petraeus",type:"possibly",radius:22,
+            agency:"CIA / US Army",role:"Former CIA Director, Four-Star General",status:"POSSIBLY INVOLVED",
             intelRole:"CIA Director 2011-2012. Already compromised by a honey trap scenario with biographer Paula Broadwell.",
             epsteinLink:"No direct contact documented. Demonstrated vulnerability to sexual compromise — the exact mechanism Epstein exploited.",
             desc:"Four-star general. CIA Director 2011-2012. Resigned after affair with biographer and sharing classified material. Pled guilty to mishandling classified information.",
@@ -355,8 +355,8 @@ const graphData = {
             significance:"Petraeus proves the highest-ranking officials are vulnerable to sexual compromise.",
             link:"His case validates the operational concept behind Epstein's network."},
 
-        {id:"comey",label:"James Comey",type:"likely",radius:22,
-            agency:"FBI",role:"Former FBI Director (2013-2017)",status:"LIKELY INVOLVED",
+        {id:"comey",label:"James Comey",type:"possibly",radius:22,
+            agency:"FBI",role:"Former FBI Director (2013-2017)",status:"POSSIBLY INVOLVED",
             intelRole:"FBI Director who did not reopen the Epstein investigation. His daughter Maurene Comey later prosecuted Maxwell.",
             epsteinLink:"FBI under Comey failed to pursue Epstein during a period when new evidence was available. FBI possessed Epstein's black book since 2009.",
             desc:"Former FBI Director fired by Trump in 2017. His daughter Maurene served on the team that convicted Maxwell.",
@@ -364,7 +364,7 @@ const graphData = {
             significance:"The FBI Director's daughter prosecuting the case the FBI Director failed to pursue.",
             link:"Was the Bureau's failure incompetence, or the same intelligence protection Acosta described?"},
 
-        {id:"starr",label:"Ken Starr",type:"likely",radius:20,
+        {id:"starr",label:"Ken Starr",type:"possibly",radius:20,
             agency:"Epstein Legal Defense",role:"Former Solicitor General",status:"DECEASED (2022)",
             intelRole:"Hired by Epstein as defense attorney. Used political connections to help secure the lenient NPA.",
             epsteinLink:"Served on Epstein's defense team. Personally lobbied DOJ. Previously investigated Clinton yet defended Epstein whose network included Clinton.",
@@ -373,8 +373,8 @@ const graphData = {
             significance:"The man who investigated Clinton over a consensual affair helped a child trafficker escape prosecution.",
             link:"Starr's involvement shows the legal protection extended to the most prestigious lawyers actively shielding Epstein."},
 
-        {id:"boies",label:"David Boies",type:"likely",radius:20,
-            agency:"Boies Schiller Flexner LLP",role:"Attorney",status:"LIKELY INVOLVED",
+        {id:"boies",label:"David Boies",type:"possibly",radius:20,
+            agency:"Boies Schiller Flexner LLP",role:"Attorney",status:"POSSIBLY INVOLVED",
             intelRole:"Represented both Epstein and Weinstein. Hired Israeli intelligence firm Black Cube to surveil Weinstein's victims.",
             epsteinLink:"Represented Epstein in civil cases. Also represented Giuffre — a conflict never formally sanctioned.",
             desc:"Founding partner of Boies Schiller Flexner. Famous for Bush v. Gore. Represented both Epstein and Weinstein, hiring ex-Mossad Black Cube against Weinstein accusers.",
@@ -382,8 +382,8 @@ const graphData = {
             significance:"Boies demonstrates how the legal system functions as a protection racket for wealthy predators.",
             link:"His hiring of former intelligence operatives to silence victims reveals the function of elite legal representation."},
 
-        {id:"ellison",label:"Larry Ellison",type:"likely",radius:24,
-            agency:"Oracle Corporation",role:"Billionaire Tech Mogul",status:"LIKELY INVOLVED",networth:"$180B",
+        {id:"ellison",label:"Larry Ellison",type:"possibly",radius:24,
+            agency:"Oracle Corporation",role:"Billionaire Tech Mogul",status:"POSSIBLY INVOLVED",networth:"$180B",
             intelRole:"Founder of Oracle, which has deep CIA and intelligence community ties. Epstein visited his private Hawaiian island.",
             epsteinLink:"Epstein visited Ellison's Hawaiian island Lanai. Both in overlapping tech-billionaire circles.",
             desc:"Oracle co-founder. Purchased 98% of Hawaiian island Lanai. Oracle has extensive CIA, NSA, and military intelligence contracts.",
@@ -502,7 +502,7 @@ const graphData = {
         {source:"robert_maxwell", target:"khashoggi", strength:0.5},
         {source:"acosta", target:"dershowitz", strength:0.5},
 
-        // ─── LIKELY INVOLVED LINKS ───
+        // ─── POSSIBLY INVOLVED LINKS ───
         {source:"epstein", target:"putin", strength:0.3},
         {source:"putin", target:"robert_maxwell", strength:0.6},
         {source:"putin", target:"mbs", strength:0.4},
