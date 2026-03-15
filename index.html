@@ -1,0 +1,363 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Epstein Network Graph</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            background: #f5f5f5;
+            overflow: hidden;
+            font-family: 'Helvetica Neue', Arial, sans-serif;
+        }
+        svg { display: block; }
+
+        /* Filter Tabs */
+        .filter-bar {
+            position: fixed;
+            top: 0; left: 0; right: 0;
+            z-index: 500;
+            background: rgba(255,255,255,0.97);
+            border-bottom: 1px solid #e0e0e0;
+            display: flex;
+            align-items: center;
+            padding: 0 20px;
+            height: 48px;
+            gap: 2px;
+            overflow-x: auto;
+            backdrop-filter: blur(8px);
+        }
+        .filter-bar-label {
+            font-size: 10px;
+            font-weight: 700;
+            letter-spacing: 1.5px;
+            text-transform: uppercase;
+            color: #aaa;
+            margin-right: 12px;
+            white-space: nowrap;
+        }
+        .filter-tab {
+            background: none;
+            border: none;
+            border-bottom: 3px solid transparent;
+            padding: 12px 14px;
+            font-size: 12px;
+            font-weight: 600;
+            color: #888;
+            cursor: pointer;
+            transition: all 0.2s;
+            white-space: nowrap;
+        }
+        .filter-tab:hover {
+            color: #333;
+            background: rgba(0,0,0,0.03);
+        }
+        .filter-tab.active {
+            color: #111;
+        }
+
+        /* Tooltip */
+        #tooltip {
+            display: none;
+            position: fixed;
+            z-index: 99999;
+            padding: 10px 14px;
+            background: rgba(255, 255, 255, 0.97);
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            color: #333;
+            font-size: 13px;
+            line-height: 1.5;
+            pointer-events: none;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            max-width: 280px;
+        }
+
+        /* Dossier Panel */
+        .dossier-overlay {
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0,0,0,0.5);
+            z-index: 999;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s ease;
+        }
+        .dossier-overlay.active {
+            opacity: 1;
+            pointer-events: all;
+        }
+        .dossier-panel {
+            position: fixed;
+            top: 0; right: -540px;
+            width: 520px;
+            max-width: 90vw;
+            height: 100vh;
+            background: #fff;
+            box-shadow: -4px 0 24px rgba(0,0,0,0.15);
+            z-index: 1000;
+            transition: right 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+            overflow-y: auto;
+            font-family: 'Helvetica Neue', Arial, sans-serif;
+        }
+        .dossier-panel.active {
+            right: 0;
+        }
+        .dossier-header {
+            position: sticky;
+            top: 0;
+            background: #fff;
+            padding: 24px 28px 16px;
+            border-bottom: 1px solid #eee;
+            z-index: 10;
+        }
+        .dossier-close {
+            position: absolute;
+            top: 20px; right: 20px;
+            width: 36px; height: 36px;
+            border: 1px solid #ddd;
+            border-radius: 50%;
+            background: #f9f9f9;
+            font-size: 18px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #666;
+            transition: all 0.2s;
+        }
+        .dossier-close:hover {
+            background: #eee;
+            color: #111;
+        }
+        .dossier-name {
+            font-size: 22px;
+            font-weight: 800;
+            letter-spacing: 0.5px;
+            color: #111;
+            margin-bottom: 4px;
+        }
+        .dossier-role {
+            font-size: 13px;
+            color: #888;
+            margin-bottom: 8px;
+        }
+        .dossier-badges {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+        }
+        .dossier-badge {
+            display: inline-block;
+            padding: 3px 10px;
+            border-radius: 12px;
+            font-size: 10px;
+            font-weight: 700;
+            letter-spacing: 0.5px;
+            text-transform: uppercase;
+        }
+        .badge-status {
+            background: #fee2e2;
+            color: #b91c1c;
+        }
+        .badge-type {
+            color: #fff;
+        }
+        .dossier-body {
+            padding: 20px 28px 40px;
+        }
+        .dossier-section {
+            margin-bottom: 24px;
+        }
+        .dossier-section-title {
+            font-size: 11px;
+            font-weight: 700;
+            letter-spacing: 1.5px;
+            text-transform: uppercase;
+            color: #aaa;
+            margin-bottom: 8px;
+            padding-bottom: 6px;
+            border-bottom: 1px solid #f0f0f0;
+        }
+        .dossier-section-text {
+            font-size: 14px;
+            line-height: 1.8;
+            color: #333;
+        }
+        .dossier-conclusion .dossier-section-text {
+            font-weight: 500;
+            color: #111;
+            font-size: 14px;
+            line-height: 1.8;
+            background: #f8f8f8;
+            padding: 14px 18px;
+            border-radius: 8px;
+            border-left: 3px solid #111;
+        }
+        .dossier-meta {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+        .dossier-meta-item {
+            background: #f8f8f8;
+            border-radius: 8px;
+            padding: 10px 14px;
+        }
+        .dossier-meta-label {
+            font-size: 9px;
+            font-weight: 700;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            color: #aaa;
+            margin-bottom: 2px;
+        }
+        .dossier-meta-value {
+            font-size: 13px;
+            font-weight: 600;
+            color: #222;
+        }
+        .dossier-highlight {
+            background: #fffbeb;
+            border-left: 3px solid #f59e0b;
+            padding: 12px 16px;
+            border-radius: 0 8px 8px 0;
+            margin-bottom: 20px;
+        }
+        .dossier-highlight p {
+            font-size: 13px;
+            line-height: 1.6;
+            color: #92400e;
+            font-style: italic;
+        }
+
+        /* Connection list in dossier */
+        .dossier-connections {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+        .dossier-connection-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 6px 10px;
+            border-radius: 6px;
+            transition: background 0.15s;
+            cursor: pointer;
+        }
+        .dossier-connection-item:hover {
+            background: #f5f5f5;
+        }
+        .dossier-connection-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            flex-shrink: 0;
+        }
+        .dossier-connection-name {
+            font-size: 12px;
+            font-weight: 600;
+            color: #333;
+            flex: 1;
+        }
+        .dossier-connection-bar {
+            width: 60px;
+            height: 4px;
+            background: #eee;
+            border-radius: 2px;
+            overflow: hidden;
+        }
+        .dossier-connection-fill {
+            height: 100%;
+            border-radius: 2px;
+        }
+
+        /* Disclaimer */
+        .dossier-disclaimer {
+            margin-top: 30px;
+            padding: 14px 16px;
+            background: #f9f9f9;
+            border: 1px solid #eee;
+            border-radius: 8px;
+        }
+        .dossier-disclaimer p {
+            font-size: 10px;
+            line-height: 1.6;
+            color: #999;
+            font-style: italic;
+        }
+
+        /* Legend */
+        .legend {
+            position: fixed;
+            bottom: 20px;
+            left: 20px;
+            background: rgba(255,255,255,0.95);
+            border: 1px solid #ddd;
+            border-radius: 10px;
+            padding: 14px 18px;
+            z-index: 50;
+            font-size: 11px;
+        }
+        .legend-title {
+            font-size: 10px;
+            font-weight: 700;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            color: #999;
+            margin-bottom: 8px;
+        }
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 4px;
+            color: #555;
+        }
+        .legend-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            border: 2px solid #fff;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.15);
+        }
+    </style>
+</head>
+<body>
+    <div id="filterTabs"></div>
+    <svg id="graph"></svg>
+    <div id="tooltip"></div>
+
+    <!-- Dossier -->
+    <div class="dossier-overlay" id="dossierOverlay"></div>
+    <div class="dossier-panel" id="dossierPanel">
+        <div class="dossier-header">
+            <button class="dossier-close" id="dossierClose">✕</button>
+            <div class="dossier-name" id="dossierName"></div>
+            <div class="dossier-role" id="dossierRole"></div>
+            <div class="dossier-badges" id="dossierBadges"></div>
+        </div>
+        <div class="dossier-body" id="dossierBody"></div>
+    </div>
+
+    <!-- Legend -->
+    <div class="legend">
+        <div class="legend-title">Categories</div>
+        <div class="legend-item"><div class="legend-dot" style="background:#000"></div> Center</div>
+        <div class="legend-item"><div class="legend-dot" style="background:#991b1b"></div> Convicted</div>
+        <div class="legend-item"><div class="legend-dot" style="background:#1d4ed8"></div> Politicians</div>
+        <div class="legend-item"><div class="legend-dot" style="background:#7c3aed"></div> Billionaires</div>
+        <div class="legend-item"><div class="legend-dot" style="background:#b45309"></div> Royals</div>
+        <div class="legend-item"><div class="legend-dot" style="background:#be185d"></div> Entertainment</div>
+        <div class="legend-item"><div class="legend-dot" style="background:#0d9488"></div> Academics</div>
+        <div class="legend-item"><div class="legend-dot" style="background:#16a34a"></div> Finance</div>
+    </div>
+
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+    <script src="data.js"></script>
+    <script src="graph.js"></script>
+</body>
+</html>
