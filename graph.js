@@ -287,6 +287,47 @@ node
     .on("mouseover", function (event, d) {
         const vis = getVisibleNodes();
         if (!vis.has(d.id)) return;
+
+        // Find connected node IDs
+        const connectedIds = new Set();
+        connectedIds.add(d.id);
+        graphData.links.forEach(l => {
+            const s = typeof l.source === "object" ? l.source.id : l.source;
+            const t = typeof l.target === "object" ? l.target.id : l.target;
+            if (s === d.id) connectedIds.add(t);
+            if (t === d.id) connectedIds.add(s);
+        });
+
+        // Dim non-connected nodes
+        node.transition().duration(200)
+            .style("opacity", n => {
+                if (!vis.has(n.id)) return 0.04;
+                return connectedIds.has(n.id) ? 1 : 0.12;
+            });
+
+        // Highlight connected links, dim others
+        link.transition().duration(200)
+            .attr("stroke-opacity", l => {
+                const s = typeof l.source === "object" ? l.source.id : l.source;
+                const t = typeof l.target === "object" ? l.target.id : l.target;
+                if (!vis.has(s) || !vis.has(t)) return 0.02;
+                return (s === d.id || t === d.id) ? 0.9 : 0.04;
+            })
+            .attr("stroke-width", l => {
+                const s = typeof l.source === "object" ? l.source.id : l.source;
+                const t = typeof l.target === "object" ? l.target.id : l.target;
+                return (s === d.id || t === d.id) ? l.strength * 3.5 : l.strength * 1.5;
+            })
+            .attr("stroke", l => {
+                const s = typeof l.source === "object" ? l.source.id : l.source;
+                const t = typeof l.target === "object" ? l.target.id : l.target;
+                if (s === d.id || t === d.id) {
+                    return getNodeColor(d);
+                }
+                return "#333";
+            });
+
+        // Tooltip
         const nc = getNodeColor(d);
         const cats = categoryMap[d.id] || [];
         const cc = graphData.links.filter(l => {
@@ -312,7 +353,21 @@ node
             .style("left", (event.clientX + 15) + "px").style("top", (event.clientY - 10) + "px");
     })
     .on("mousemove", (event) => { tooltip.style("left", (event.clientX + 15) + "px").style("top", (event.clientY - 10) + "px"); })
-    .on("mouseout", () => { tooltip.style("display", "none"); });
+    .on("mouseout", () => {
+        tooltip.style("display", "none");
+        // Restore all nodes and links based on current filters
+        const vis = getVisibleNodes();
+        node.transition().duration(300)
+            .style("opacity", d => vis.has(d.id) ? 1 : 0.04);
+        link.transition().duration(300)
+            .attr("stroke-opacity", l => {
+                const s = typeof l.source === "object" ? l.source.id : l.source;
+                const t = typeof l.target === "object" ? l.target.id : l.target;
+                return (vis.has(s) && vis.has(t)) ? 0.5 : 0.02;
+            })
+            .attr("stroke-width", l => l.strength * 2)
+            .attr("stroke", "#333");
+    });
 
 // ─── CHECKBOX FILTERS ───
 const tabBar = document.getElementById("filterTabs");
